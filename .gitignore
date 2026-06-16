@@ -11,7 +11,7 @@ templates/
 dumps/
 mod/
 frida/
-docs/
+docs/*
 !docs/screenshot.png
 tools/
 
