@@ -1,0 +1,45 @@
+{
+  "window_title": "RONIN",
+  "dps_window_sec": 5.0,
+  "min_damage_height_frac": 0.006,
+  "exclude_zones": [
+    [
+      0.0,
+      0.0,
+      1.0,
+      0.11
+    ],
+    [
+      0.0,
+      0.9,
+      0.22,
+      1.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.14,
+      0.22
+    ],
+    [
+      0.82,
+      0.78,
+      1.0,
+      1.0
+    ]
+  ],
+  "min_damage": 10,
+  "max_damage": 200000000,
+  "combat_timeout": 3.0,
+  "menu_detect": true,
+  "menu_conf_thresh": 0.65,
+  "menu_hysteresis_frames": 3,
+  "capture_fps": 60,
+  "roi_frac": null,
+  "capture_region": [
+    2,
+    33,
+    1885,
+    999
+  ]
+}

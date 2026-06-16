@@ -1,0 +1,46 @@
+# Окружение / сборка
+venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Данные разработки (не нужны юзеру, тяжёлые)
+test-shots/
+dataset/
+templates/
+dumps/
+mod/
+frida/
+docs/
+!docs/screenshot.png
+tools/
+
+# Веса для переобучения (юзеру не нужны — в релизе только .onnx + .onnx.data)
+*.pth
+models/*.pth
+
+# Скрипты разработки / отладки
+debug_*.py
+verify_*.py
+train_*.py
+check_*.py
+find_*.py
+test_critical_shots.py
+
+# Отчёты субагентов (внутренняя кухня)
+*REPORT*.md
+*REPORT*.txt
+FINAL_*.md
+FINAL_*.txt
+final_results.txt
+INTEGRATION_GUIDE.md
+MENU_CLASSIFIER_*.md
+CLASSIFIER_REPORT.md
+PLAN.md
+
+# Локальный конфиг с координатами рамки конкретного юзера
+# (config.json в репо — дефолтный, без capture_region/debug_log)
+
+# Прочее
+*.log
+.DS_Store

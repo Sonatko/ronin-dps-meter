@@ -1,0 +1,13 @@
+# ONNX модели — бинарные файлы
+*.onnx binary
+*.onnx.data binary
+
+# Python
+*.py text eol=lf
+*.bat text eol=crlf
+
+# JSON конфиги
+*.json text eol=lf
+
+# Markdown
+*.md text eol=lf
