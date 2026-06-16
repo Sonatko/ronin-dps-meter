@@ -126,27 +126,32 @@ class DamageTracker:
                     if tr.layer == "red":
                         self.crit_total += tr.value
                     self.max_hit = max(self.max_hit, tr.value)
+                    # ACTIVITY time: копим дельты между ударами по их РЕАЛЬНОМУ времени
+                    # (tr.t_last — момент удара, не now). Дельта <= timeout -> активное
+                    # время боя; дельта > timeout -> это была пауза, не считаем.
+                    hit_t = tr.t_last
                     if self.first_hit_time is None:
-                        self.first_hit_time = tr.t_last   # старт effective-таймера
-                    self.last_hit_time = now  # засчитан урон -> обновить время боя
+                        self.first_hit_time = hit_t   # старт effective-таймера
+                    if self.last_hit_time is not None and hit_t > self.last_hit_time:
+                        gap = hit_t - self.last_hit_time
+                        if gap <= self.combat_timeout:
+                            self.combat_active_time += gap   # активный интервал
+                        # иначе: пауза между ударами > timeout — в activity не идёт
+                    # хронологический порядок зачёта не гарантирован (треки закрываются
+                    # по forget_sec), поэтому last_hit_time = максимум из времён ударов
+                    if self.last_hit_time is None or hit_t > self.last_hit_time:
+                        self.last_hit_time = hit_t
             else:
                 alive.append(tr)
         self.tracks = alive
 
-        # 3) AUTO-PAUSE: обновить активное время боя
-        if self.combat_start_time is None:
-            # боя ещё не было или он закончился после паузы
-            if self.last_hit_time is not None and now - self.last_hit_time <= self.combat_timeout:
-                self.combat_start_time = self.last_hit_time
+        # 3) combat_start_time оставлен как индикатор «бой активен сейчас»
+        #    (для возможного UI). Активное время копится дельтами в блоке (2),
+        #    поэтому здесь больше НЕ накапливаем — только флаг состояния.
+        if self.last_hit_time is not None and now - self.last_hit_time <= self.combat_timeout:
+            self.combat_start_time = self.first_hit_time   # бой идёт
         else:
-            # бой идёт
-            if self.last_hit_time is not None and now - self.last_hit_time > self.combat_timeout:
-                # пауза: заморозить время по ПОСЛЕДНЕМУ удару (не now — иначе пауза попадёт в время боя)
-                self.combat_active_time += self.last_hit_time - self.combat_start_time
-                self.combat_start_time = None
-            else:
-                # бой продолжается
-                pass
+            self.combat_start_time = None                  # пауза/нет боя
 
         # 4) чистка окна DPS
         cutoff = now - self.dps_window
@@ -177,10 +182,9 @@ class DamageTracker:
             return self._combat_time_locked()
 
     def _combat_time_locked(self) -> float:
-        result = self.combat_active_time
-        if self.combat_start_time is not None and self.last_hit_time is not None:
-            result += self.last_hit_time - self.combat_start_time
-        return result
+        # Активное время копится дельтами между ударами в _update_locked (блок 2).
+        # Здесь просто возвращаем накопленное.
+        return self.combat_active_time
 
     def effective_time(self) -> float:
         """EFFECTIVE время боя (как WoW Details): от первого до последнего удара,
